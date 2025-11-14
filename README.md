@@ -1,7 +1,13 @@
-# Projeto Baianá
-Projeto desenvolvido como avaliação parcial para conclusão do programa Bolsa Futuro Digital - Desenvolvimento Backend com Python
-Integrantes:
--> Iandra
--> Maria Clara
--> Tarcísio
--> Yuri
+# 🎓 Sistema de Avaliação para a **Escola de Dança Baianá** – **Projeto Back-End Python Orientado a Objetos: Bolsa Futuro Digital**  
+
+---
+
+## 👥 Equipe
+- Iandra
+- Maria Clara dos Santos Pires
+- Tarcísio Cortês Silva
+- Yuri Lima
+
+**Orientador:** Prof. Cláudio Rodolfo Sousa de Oliveira
+
+---
