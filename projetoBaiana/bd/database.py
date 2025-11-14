@@ -110,6 +110,16 @@ class DatabaseConnection:
             );
         """)
 
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS parametro_estilo(
+                parametro_id INTEGER,  
+                estilo_id INTEGER,
+                FOREIGN KEY (parametro_id) REFERENCES parametros(parametro_id),
+                FOREIGN KEY (estilo_id) REFERENCES estiloDanca(estilo_id)
+                
+            );
+        """)
+
     def limparTabelas(self):
         cur = self.meuCursor()
         cur.execute("DELETE FROM pessoa;")
