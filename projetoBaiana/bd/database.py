@@ -122,8 +122,15 @@ class DatabaseConnection:
 
     def limparTabelas(self):
         cur = self.meuCursor()
-        cur.execute("DELETE FROM pessoa;")
-        cur.execute("DELETE FROM categoria;")
+        cur.execute("DELETE FROM aluno;")
+        cur.execute("DELETE FROM nivel;")
+        cur.execute("DELETE FROM avaliacao;")
+        cur.execute("DELETE FROM parametros;")
+        cur.execute("DELETE FROM estiloDanca;")
+        cur.execute("DELETE FROM itemAvaliacao;")
+        cur.execute("DELETE FROM evento;")
+        cur.execute("DELETE FROM examinador;")
+        cur.execute("DELETE FROM parametro_estilo;")
         
         # Resetar os contadores de AUTOINCREMENT
-        cur.execute("DELETE FROM sqlite_sequence WHERE name IN ('pessoa', 'categoria');")
+        cur.execute("DELETE FROM sqlite_sequence WHERE name IN ('aluno', 'nivel', 'avaliacao', 'parametros', 'estiloDanca', 'itemAvaliacao', 'evento', 'examinador', 'parametro_estilo');")
