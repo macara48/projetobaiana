@@ -26,7 +26,8 @@ Este documento descreve o **Modelo de Entidade-Relacionamento (ERD)** e as **Reg
 
 O diagrama ilustra as entidades principais do sistema e as associações entre elas, usando as seguintes convenções de cor para as relações:
 
-<img width="970" height="556" alt="Captura de tela 2025-11-14 222047" src="https://github.com/user-attachments/assets/3b06210a-59de-4309-acf5-97a2bdef4fae" />
+![Diagrama de Classes - Entidades](https://github.com/user-attachments/assets/16fe9f39-918c-490c-a223-9b6d886b9ab5)
+
 
 * **⚫ Preto:** Relação de **Agregação** (Associação fraca - as entidades podem existir de forma independente).
 * **🔴 Vermelho:** Relação de **Composição** (Associação forte - a entidade parte não existe sem a entidade todo).
