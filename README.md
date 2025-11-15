@@ -6,7 +6,7 @@
 ## 👥 Equipe
 - Iandra
 - Maria Clara dos Santos Pires
-- Tarcísio Cortês Silva
+- Tarcísio Côrtes Viana
 - Yuri Lima
 
 **Orientador:** Prof. Cláudio Rodolfo Sousa de Oliveira
