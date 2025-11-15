@@ -96,4 +96,16 @@ A Agregação indica que as entidades podem existir de forma independente. A rem
 * **Unicidade do Item de Avaliação:** Para a entidade **`itmAvaliacao`**, a combinação de (`ava_id`, `parametro_id`) é única. Isso garante que um examinador só pode atribuir **uma única nota** para um parâmetro dentro de uma avaliação específica.
 * **Unicidade do Parâmetro:** Para a entidade **`parametros`**, a combinação de (`estilo_id`, `nivel_id`, `parametro`) deve ser única, garantindo que não haja critérios de avaliação duplicados para o mesmo contexto.
 
+  # 🏆 Sistema de Gerenciamento de Avaliação de Dança
+
+## 🌟 Resumo do Projeto
+
+Este projeto consiste em um sistema back-end para **gerenciar, registrar e consultar avaliações de performances de dança** em eventos e escolas.
+
+O objetivo principal é fornecer uma plataforma estruturada para:
+
+1.  **Modelagem e Cadastro** de entidades chave: **Alunos**, **Examinadores**, **Níveis**, **Estilos de Dança** e **Eventos**.
+2.  **Criação de Avaliações Detalhadas**: Permitindo que Examinadores registrem notas (`itmAvaliacao`) para múltiplos **Parâmetros** (critérios como Ritmo, Técnica, Expressão), que são específicos para cada **Nível** e **Estilo de Dança**.
+3.  **Garantia da Integridade dos Dados**: O sistema foi construído com regras de **Composição** e **Agregação** estritas (conforme detalhado no ERD), garantindo que os dados de performance histórica sejam rastreáveis e consistentes.
+
 
