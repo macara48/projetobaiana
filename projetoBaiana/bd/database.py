@@ -2,39 +2,41 @@ import sqlite3
 
 class DatabaseConnection:
     def __init__(self, dbPath: str = 'exemplo_bd.db'):
-        self.dbPath = dbPath
-        self.conn = None
+        self.__dbPath = dbPath
+        self.__conn = None
     
     def conectar(self):
-        if self.conn is None:
+        if self.__conn is None:
             # isolation_level=None ativa autocommit (cada operação é commitada automaticamente)
-            self.conn = sqlite3.connect(self.dbPath, isolation_level=None)
-            self.conn.row_factory = sqlite3.Row
-            self.conn.execute("PRAGMA foreign_keys = ON")
-        return self.conn
+            self.__conn = sqlite3.connect(self.__dbPath, isolation_level=None)
+            self.__conn.row_factory = sqlite3.Row
+            self.__conn.execute("PRAGMA foreign_keys = ON")
+        return self.__conn
     
     def fechar(self):
         """Fecha a conexão com o banco de dados"""
-        if self.conn:
-            self.conn.close()
-            self.conn = None
+        if self.__conn:
+            self.__conn.close()
+            self.__conn = None
+    
+
     
     def cursor(self):
         """Retorna um cursor para executar queries"""
-        if self.conn is None:
+        if self.__conn is None:
             self.conectar()
-        return self.conn.cursor()
+        return self.__conn.cursor()
 
     def criarTabelas(self):
         cur = self.cursor()
         cur.execute(
             """
             CREATE TABLE IF NOT EXISTS aluno(
-                aluno_id INTEGER PRIMARY KEY AUTOINCREMENT,  
+                id INTEGER PRIMARY KEY AUTOINCREMENT,  
                 nome TEXT NOT NULL,  
                 nivel_id INTEGER,  
-                contato TEXT UNIQUE NOT NULL,  
-                tipoConducao TEXT NOT NULL,
+                contato TEXT NOT NULL UNIQUE,  
+                tipoConducao TEXT NOT NULL UNIQUE,
                 ativo INTEGER DEFAULT 1, 
                 FOREIGN KEY (nivel_id) REFERENCES nivel(nivel_id),
                 FOREIGN KEY (tipoConducao) REFERENCES parametros(tipoConducao)
@@ -44,14 +46,14 @@ class DatabaseConnection:
         
         cur.execute("""
             CREATE TABLE IF NOT EXISTS nivel(
-                nivel_id INTEGER PRIMARY KEY AUTOINCREMENT,  
-                corNivel TEXT NOT NULL UNIQUE
+                id INTEGER PRIMARY KEY AUTOINCREMENT,  
+                nome TEXT NOT NULL UNIQUE
             );
         """)
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS avaliacao(
-                ava_id INTEGER PRIMARY KEY AUTOINCREMENT,  
+                id INTEGER PRIMARY KEY AUTOINCREMENT,  
                 data TEXT,  
                 aluno_id INTEGER,  
                 obs TEXT,  
@@ -67,8 +69,8 @@ class DatabaseConnection:
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS parametros(
-                parametro_id INTEGER PRIMARY KEY AUTOINCREMENT,  
-                parametro TEXT,  
+                id INTEGER PRIMARY KEY AUTOINCREMENT,  
+                nome TEXT NOT NULL UNIQUE,  
                 tipoConducao TEXT,  
                 estilo_id INTEGER,  
                 nivel_id INTEGER, 
@@ -79,14 +81,14 @@ class DatabaseConnection:
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS estiloDanca(
-                estilo_id INTEGER PRIMARY KEY AUTOINCREMENT,  
-                estilo TEXT
+                id INTEGER PRIMARY KEY AUTOINCREMENT,  
+                estilo TEXT NOT NULL UNIQUE
             );
         """)
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS itemAvaliacao(
-                ava_id INTEGER PRIMARY KEY AUTOINCREMENT,  
+                id INTEGER PRIMARY KEY AUTOINCREMENT,  
                 parametro_id INTEGER,  
                 nota INTEGER,
                 FOREIGN KEY (parametro_id) REFERENCES parametros(parametro_id)
@@ -95,29 +97,42 @@ class DatabaseConnection:
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS evento(
-                evento_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 pessoaHomenageada TEXT NOT NULL,  
-                dataEvento TEXT NOT NULL,  
-                evento TEXT NOT NULL
+                dataEvento TEXT NOT NULL UNIQUE,  
+                evento TEXT NOT NULL UNIQUE
             );
         """)
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS examinador(
-                examinador_id INTEGER PRIMARY KEY AUTOINCREMENT,  
+                id INTEGER PRIMARY KEY AUTOINCREMENT,  
                 nome TEXT NOT NULL,  
-                contato INTEGER UNIQUE NOT NULL 
+                contato INTEGER NOT NULL UNIQUE 
             );
         """)
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS parametro_estilo(
-                parametro_id INTEGER,  
-                estilo_id INTEGER,
-                FOREIGN KEY (parametro_id) REFERENCES parametros(parametro_id),
-                FOREIGN KEY (estilo_id) REFERENCES estiloDanca(estilo_id)
+                parametro_id INTEGER NOT NULL,  
+                estilo_id INTEGER NOT NULL,
+                PRIMARY KEY (parametro_id, estilo_id),
+                FOREIGN KEY (parametro_id) REFERENCES parametros(id) ON DELETE CASCADE,
+                FOREIGN KEY (estilo_id) REFERENCES estiloDanca(id) ON DELETE CASCADE
                 
             );
+        """)
+
+        # Tabela usuario (relacionamento 1:1 com aluno)
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS usuario (
+            id INTEGER NOT NULL,
+            login TEXT NOT NULL UNIQUE,
+            senha TEXT NOT NULL,
+            tipo TEXT NOT NULL,
+            PRIMARY KEY (id),
+            FOREIGN KEY (id) REFERENCES aluno(id) ON DELETE CASCADE
+        );
         """)
 
     def limparTabelas(self):
@@ -131,6 +146,7 @@ class DatabaseConnection:
         cur.execute("DELETE FROM evento;")
         cur.execute("DELETE FROM examinador;")
         cur.execute("DELETE FROM parametro_estilo;")
+        cur.execute("DELETE FROM usuario;")
         
         # Resetar os contadores de AUTOINCREMENT
-        cur.execute("DELETE FROM sqlite_sequence WHERE name IN ('aluno', 'nivel', 'avaliacao', 'parametros', 'estiloDanca', 'itemAvaliacao', 'evento', 'examinador', 'parametro_estilo');")
+        cur.execute("DELETE FROM sqlite_sequence WHERE name IN ('aluno', 'nivel', 'avaliacao', 'parametros', 'estiloDanca', 'itemAvaliacao', 'evento', 'examinador', 'parametro_estilo', 'usuario');")
