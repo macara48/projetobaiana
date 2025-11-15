@@ -6,7 +6,7 @@
 **Como instalar esse projeto?**
 
 ## 👥 Equipe
-- Iandra
+- Iandra Santos Lacerda
 - Maria Clara dos Santos Pires
 - Tarcísio Côrtes Viana
 - Yuri Lima
