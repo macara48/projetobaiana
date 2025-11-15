@@ -1,7 +1,23 @@
-class EstiloDanca():
-  def __init__(self, estilo_id: int, estilo: str):
-    self.estilo_id = estilo_id
-    self.estilo = estilo
+class EstiloDanca:
+  def __init__(self, id: int, nome: str):
+    self.__id = id
+    self.__nome = nome
+
+  @property
+  def id(self):
+    return self.__id
+  
+  @id.setter
+  def id(self, value):
+    self.__id = value
+  
+  @property
+  def nome(self):
+    return self.__nome
+  
+  @nome.setter
+  def nome(self, value):
+    self.__nome = value
 
   def __str__(self):
-    return f"{self.estilo_id} | {self.estilo}"
+    return (f"Evento(id={self.__id}, nome='{self.__nome}')")
