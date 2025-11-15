@@ -1,7 +1,23 @@
 class Nivel():
-  def __init__(self, nivel_id: int, corNivel: str):
-    self.nivel_id = nivel_id
-    self.corNivel = corNivel
+  def __init__(self, id: int, nome: str):
+    self.id = id
+    self.nome = nome
+
+  @property
+  def id(self):
+    return self.__id
+  
+  @id.setter
+  def id(self, value):
+    self.__id = value
+
+  @property
+  def nome(self):
+    return self.__nome
+  
+  @nome.setter
+  def nome(self, value):
+    self.__nome = value
   
   def __str__(self):
-    return f"{self.nivel_id} | {self.corNivel}"
+    return f"Nivel(id={self.__id}, nome='{self.__nome}')"
