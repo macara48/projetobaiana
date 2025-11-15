@@ -6,33 +6,33 @@ from model.nivel_class import Nivel
 
 class NivelDAO:
     def __init__(self, db: DatabaseConnection):
-        self.db = db
+        self.__db = db
     
     def salvar(self, nivel: Nivel):
-        cur = self.db.cursor()
+        cur = self.__db.cursor()
         
-        if nivel.nivel_id is None:
+        if nivel.id is None:
             # INSERT
-            cur.execute("INSERT INTO nivel (corNivel) VALUES (?);", (nivel.corNivel,))
-            nivel.nivel_id = cur.lastrowid
+            cur.execute("INSERT INTO nivel (nome) VALUES (?);", (nivel.nome,))
+            nivel.id = cur.lastrowid
         else:
             # UPDATE
-            cur.execute("UPDATE nivel SET corNivel = ? WHERE nivel_id = ?;", (nivel.corNivel, nivel.nivel_id))
+            cur.execute("UPDATE nivel SET nome = ? WHERE id = ?;", (nivel.nome, nivel.id))
         
-        return nivel.nivel_id
+        return nivel.id
     
-    def buscarPorId(self, nivel_id: int):
-        cur = self.db.cursor()
-        cur.execute("SELECT * FROM nivel WHERE id = ?;", (nivel_id,))
+    def buscarPorId(self, id: int):
+        cur = self.__db.cursor()
+        cur.execute("SELECT * FROM nivel WHERE id = ?;", (id,))
         row = cur.fetchone()
         
         if row:
             return self.criarDeRow(row)
         return None
     
-    def buscarPorNome(self, corNivel: str):
-        cur = self.db.cursor()
-        cur.execute("SELECT * FROM nivel WHERE corNivel = ?;", (corNivel,))
+    def buscarPorNome(self, nome: str):
+        cur = self.__db.cursor()
+        cur.execute("SELECT * FROM nivel WHERE nome = ?;", (nome,))
         row = cur.fetchone()
         
         if row:
@@ -40,8 +40,8 @@ class NivelDAO:
         return None
     
     def listarTodas(self):
-        cur = self.db.cursor()
-        cur.execute("SELECT * FROM nivel ORDER BY corNivel;")
+        cur = self.__db.cursor()
+        cur.execute("SELECT * FROM nivel ORDER BY nome;")
         rows = cur.fetchall()
         
         resultado = []
@@ -51,15 +51,15 @@ class NivelDAO:
     
     def criarDeRow(self, row):
         return Nivel(
-            nivel_id=row['id'],
-            corNivel=row['Nivel']
+            id=row['id'],
+            nome=row['nome']
         )
     
     def deletar(self, nivel: Nivel):
-        if nivel.nivel_id is None:
+        if nivel.id is None:
             return False
         
-        cur = self.db.cursor()
-        cur.execute("DELETE FROM nivel WHERE id = ?;", (nivel.nivel_id,))
+        cur = self.__db.cursor()
+        cur.execute("DELETE FROM nivel WHERE id = ?;", (nivel.id,))
 
         return cur.rowcount > 0
