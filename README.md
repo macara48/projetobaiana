@@ -41,29 +41,35 @@ Abaixo estão as tabelas (Entidades) e suas respectivas colunas (Atributos), inc
 
 | Entidade | Atributo (Coluna) | Tipo de Chave | Descrição e Notas |
 | :--- | :--- | :--- | :--- |
-| **nivel** | `nivel_id` | PK | Identificador único do nível (Ex: Básico, Avançado). |
-| | `confNivel` | | Nome do nível. |
-| **estiloDanca** | `estilo_id` | PK | Identificador único do estilo de dança. |
-| | `estilo` | | Nome do estilo. |
-| **evento** | `evento_id` | PK | Identificador único do evento de avaliação. |
+| **nivel** | `id` | PK | Identificador único do nível (Ex: Básico, Avançado). |
+| | `nome` | | Nome do nível. |
+| **estiloDanca** | `id` | PK | Identificador único do estilo de dança. |
+| | `nome` | | Nome do estilo. |
+| **evento** | `id` | PK | Identificador único do evento de avaliação. |
 | | `dataEvento` | | Data de realização do evento. |
-| **examinador** | `examinador_id` | PK | Identificador único do examinador/juiz. |
+| **examinador** | `id` | PK | Identificador único do examinador/juiz. |
 | | `nome` | | Nome completo do examinador. |
-| **aluno** | `aluno_id` | PK | Identificador único do aluno. |
+| **aluno** | `id` | PK | Identificador único do aluno. |
 | | `nome` | | Nome completo do aluno. |
 | | `nivel_id` | FK | Liga ao nível do aluno. |
 | | `estilo_id` | FK | Liga ao estilo principal do aluno. |
-| **parametros** | `parametro_id` | PK | Identificador único do critério de avaliação (Ex: Ritmo, Técnica). |
-| | `parametro` | | Nome do parâmetro. |
+| **parametros** | `id` | PK | Identificador único do critério de avaliação (Ex: Ritmo, Técnica). |
+| | `nome` | | Nome do parâmetro. |
 | | `estilo_id` | FK | Liga ao estilo de dança. |
 | | `nivel_id` | FK | Liga ao nível de dificuldade. |
-| **avaliacao** | `ava_id` | PK | Identificador único da avaliação. |
+| **avaliacao** | `id` | PK | Identificador único da avaliação. |
 | | `data` | | Data da avaliação. |
 | | `aluno_id` | FK | Liga ao aluno avaliado. |
 | | `examinador_id` | FK | Liga ao examinador responsável. |
 | | `evento_id` | FK | Liga ao evento. |
-| **itmAvaliacao** | `ava_id`, `parametro_id` | PK (Composta) | Identifica um item de avaliação (nota específica). |
+| **itemAvaliacao** | `ava_id`, `parametro_id` | PK (Composta) | Identifica um item de avaliação (nota específica). |
 | | `nota` | | Nota ou pontuação dada para o parâmetro. |
+| **parametro_estilo** | `parametro_id`, `estilo_id` | PK (Composta) | Tabela auxiliar para otimizar a ligação entre as tabelas parametros e estiloDanca. |
+| **usuario** | `id` | PK (Composta) | Identificador único do usuário.. |
+| | `login` | | Login do usuário. |
+| | `senha` | Senha do usuário. |
+| | `tipo` | Tipos de usuário disponíveis: examinador, aluno. |
+| | `aluno_id` | FK | Liga ao usuário aluno. **Posteriormente deve se ligar ao examinador também.** |
 
 ---
 
