@@ -84,7 +84,7 @@ A Composição implica uma dependência de ciclo de vida: a "parte" é removida 
 | Relacionamento (Todo $\rightarrow$ Parte) | Cardinalidade | Regra de Negócio |
 | :--- | :--- | :--- |
 | **`aluno`** $\rightarrow$ **`avaliacao`** | 1 $\rightarrow$ (0, n) | Uma avaliação **pertence estritamente** a um aluno. Se um aluno for excluído, **todas** as suas avaliações históricas devem ser removidas do sistema. |
-| **`avaliacao`** $\rightarrow$ **`itmAvaliacao`** | 1 $\rightarrow$ (0, n) | Um item de avaliação (nota) **existe apenas** no contexto de uma avaliação. A exclusão de uma avaliação implica na remoção de **todos** os seus itens detalhados. |
+| **`avaliacao`** $\rightarrow$ **`itemAvaliacao`** | 1 $\rightarrow$ (0, n) | Um item de avaliação (nota) **existe apenas** no contexto de uma avaliação. A exclusão de uma avaliação implica na remoção de **todos** os seus itens detalhados. |
 | **`nivel/estilo`** $\rightarrow$ **`parametros`** | 1 $\rightarrow$ (0, n) | Um parâmetro é **definido** para um nível e estilo específicos. A exclusão de um `nivel` ou `estiloDanca` deve resultar na exclusão dos `parametros` exclusivos relacionados. |
 
 ### 3.2. Relações de Agregação (⚫ Associação Fraca)
@@ -99,7 +99,7 @@ A Agregação indica que as entidades podem existir de forma independente. A rem
 
 ### 3.3. Regras de Integridade de Chave Composta
 
-* **Unicidade do Item de Avaliação:** Para a entidade **`itmAvaliacao`**, a combinação de (`ava_id`, `parametro_id`) é única. Isso garante que um examinador só pode atribuir **uma única nota** para um parâmetro dentro de uma avaliação específica.
+* **Unicidade do Item de Avaliação:** Para a entidade **`itemAvaliacao`**, a combinação de (`ava_id`, `parametro_id`) é única. Isso garante que um examinador só pode atribuir **uma única nota** para um parâmetro dentro de uma avaliação específica.
 * **Unicidade do Parâmetro:** Para a entidade **`parametros`**, a combinação de (`estilo_id`, `nivel_id`, `parametro`) deve ser única, garantindo que não haja critérios de avaliação duplicados para o mesmo contexto.
 
   # 🏆 Sistema de Gerenciamento de Avaliação de Dança
@@ -111,7 +111,7 @@ Este projeto consiste em um sistema back-end para **gerenciar, registrar e consu
 O objetivo principal é fornecer uma plataforma estruturada para:
 
 1.  **Modelagem e Cadastro** de entidades chave: **Alunos**, **Examinadores**, **Níveis**, **Estilos de Dança** e **Eventos**.
-2.  **Criação de Avaliações Detalhadas**: Permitindo que Examinadores registrem notas (`itmAvaliacao`) para múltiplos **Parâmetros** (critérios como Ritmo, Técnica, Expressão), que são específicos para cada **Nível** e **Estilo de Dança**.
+2.  **Criação de Avaliações Detalhadas**: Permitindo que Examinadores registrem notas (`itemAvaliacao`) para múltiplos **Parâmetros** (critérios como Ritmo, Técnica, Expressão), que são específicos para cada **Nível** e **Estilo de Dança**.
 3.  **Garantia da Integridade dos Dados**: O sistema foi construído com regras de **Composição** e **Agregação** estritas (conforme detalhado no ERD), garantindo que os dados de performance histórica sejam rastreáveis e consistentes.
 
 
