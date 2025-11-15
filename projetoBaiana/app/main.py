@@ -1,6 +1,6 @@
 """
 Sistema principal de gerenciamento com menu unificado
-Permite ao usuário escolher entre gerenciar Categorias ou Pessoas
+Permite ao usuário escolher entre gerenciar Niveis, Usuários (com Aluno)
 """
 import sys
 import os
@@ -12,13 +12,15 @@ from bd.database import DatabaseConnection
 
 # Importar serviços
 from nivel_service import NivelService
-from aluno_service import AlunoService
+from usuario_service import UsuarioService
+
 
 class SistemaPrincipal:
+    
     def __init__(self, db: DatabaseConnection):
-        self.db = db
-        self.nivelService = NivelService(db)
-        self.alunoService = AlunoService(db)
+        self.__db = db
+        self.__nivelService = NivelService(db)
+        self.__usuarioService = UsuarioService(db)
     
     def exibirMenuPrincipal(self):
         """Exibe o menu principal de opções"""
@@ -26,10 +28,16 @@ class SistemaPrincipal:
         print("     SISTEMA DE GERENCIAMENTO")
         print("="*50)
         print("1. Gerenciar Niveis")
-        print("2. Gerenciar Alunos")
+        print("2. Gerenciar Usuários + Aluno")
+        print("3. Gerenciar Avaliações")
+        print("4. Gerenciar Eventos")
+        print("5. Gerenciar Examinadores")
+        print("6. Gerenciar Parâmetros")
         print("0. Sair")
         print("="*50)
-
+        print("ℹ️  Nota: Ao criar um Usuário, a Aluno é criado automaticamente!")
+        print("="*50)
+    
     def executar(self):
         """Método principal que executa o loop do menu"""
         try:
@@ -44,12 +52,12 @@ class SistemaPrincipal:
                     print("\n" + "="*50)
                     print("  ENTRANDO NO GERENCIAMENTO DE NIVEIS")
                     print("="*50)
-                    self.nivelService.executar()
+                    self.__nivelService.executar()
                 elif opcao == '2':
                     print("\n" + "="*50)
-                    print("  ENTRANDO NO GERENCIAMENTO DE ALUNOS")
+                    print("  ENTRANDO NO GERENCIAMENTO DE USUÁRIOS")
                     print("="*50)
-                    self.alunoService.executar()
+                    self.__usuarioService.executar()
                 else:
                     print("❌ Opção inválida! Tente novamente.")
         
@@ -59,11 +67,12 @@ class SistemaPrincipal:
             print(f"\n❌ Erro inesperado: {e}")
             import traceback
             traceback.print_exc()
-    
-def main():
-    """ Função principal para executar o sistema """
-    db = DatabaseConnection('exemplo_bd.db')
 
+
+def main():
+    """Função principal para executar o sistema"""
+    db = DatabaseConnection('exemplo_bd.db')
+    
     try:
         # Conectar ao banco
         db.conectar()
@@ -74,7 +83,7 @@ def main():
         # Criar e executar o sistema principal
         sistema = SistemaPrincipal(db)
         sistema.executar()
-
+    
     except Exception as e:
         print(f"❌ Erro ao inicializar o sistema: {e}")
         import traceback
@@ -86,3 +95,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
