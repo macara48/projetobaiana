@@ -1,6 +1,6 @@
 """
-Serviço para interação do usuário via linha de comando com a entidade Disciplina
-e gerenciamento do relacionamento N:N com Pessoa
+Serviço para interação do usuário via linha de comando com a entidade evento
+e gerenciamento do relacionamento N:N com Avaliacao
 """
 import sys
 import os
@@ -9,429 +9,389 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from bd.database import DatabaseConnection
-from dao.disciplina_dao import DisciplinaDAO
-from dao.pessoa_dao import PessoaDAO
-from model.disciplina import Disciplina
+from dao.evento_dao import EventoDAO
+from dao.avaliacao_dao import AvaliacaoDAO
+from model.evento_class import Evento
 
 
-class DisciplinaService:
+class EventoService:
     
     def __init__(self, db: DatabaseConnection):
         self.__db = db
-        self.__disciplinaDao = DisciplinaDAO(db)
-        self.__pessoaDao = PessoaDAO(db)
+        self.__eventoDao = EventoDAO(db)
+        self.__avaliacaoDao = AvaliacaoDAO(db)
     
     def exibirMenu(self):
         """Exibe o menu principal de opções"""
         print("\n" + "="*50)
-        print("  SISTEMA DE GERENCIAMENTO DE DISCIPLINAS")
+        print("  SISTEMA DE GERENCIAMENTO DE EVENTOS")
         print("="*50)
-        print("1. Criar disciplina")
-        print("2. Listar todas as disciplinas")
-        print("3. Buscar disciplina por ID")
-        print("4. Buscar disciplina por nome")
-        print("5. Atualizar disciplina")
-        print("6. Deletar disciplina")
-        print("7. Vincular pessoa a disciplina")
-        print("8. Desvincular pessoa de disciplina")
-        print("9. Listar pessoas de uma disciplina")
-        print("10. Listar disciplinas de uma pessoa")
+        print("1. Criar evento")
+        print("2. Listar todos os eventos")
+        print("3. Buscar evento por ID")
+        print("4. Buscar evento por nome")
+        print("5. Atualizar evento")
+        print("6. Deletar evento")
+        print("7. Vincular avaliacao a evento")
+        print("8. Desvincular avaliacao de evento")
+        print("9. Listar avaliacoes de uma evento")
         print("0. Sair")
         print("="*50)
     
-    def criarDisciplina(self):
-        """Solicita dados do usuário e cria uma nova disciplina"""
-        print("\n--- CRIAR DISCIPLINA ---")
+    def criarEvento(self):
+        """Solicita dados do usuário e cria um novo evento"""
+        print("\n--- CRIAR EVENTO ---")
         
-        nome = input("Digite o nome da disciplina: ").strip()
+        nome = input("Digite o nome do evento: ").strip()
         if not nome:
-            print("❌ Erro: O nome da disciplina não pode ser vazio!")
+            print("❌ Erro: O nome do evento não pode ser vazio!")
             return
         
-        # Verificar se já existe uma disciplina com esse nome
-        disciplinasExistentes = self.__disciplinaDao.buscarPorNome(nome)
-        for d in disciplinasExistentes:
-            if d.nome.lower() == nome.lower():
-                print(f"❌ Erro: Já existe uma disciplina com o nome '{nome}' (ID: {d.id})")
+        # Verificar se já existe um evento com esse nome
+        eventosExistentes = self.__eventoDao.buscarPorNome(nome)
+        for e in eventosExistentes:
+            if e.nome.lower() == nome.lower():
+                print(f"❌ Erro: Já existe um evento com o nome '{nome}' (ID: {e.id})")
                 return
         
-        cargaHorariaStr = input("Digite a carga horária (ou Enter para pular): ").strip()
-        cargaHoraria = int(cargaHorariaStr) if cargaHorariaStr else None
+        dataEventoStr = input("Digite a data do evento: ").strip()
+        dataEvento = int(dataEventoStr) if dataEventoStr else None
         
-        descricao = input("Digite a descrição (ou Enter para pular): ").strip()
-        descricao = descricao if descricao else None
+        homenageado = input("Informe a pessoa homenageada no evento: ").strip()
+        homenageado = homenageado if homenageado else None
         
         try:
-            disciplina = Disciplina(
+            evento = Evento(
                 id=None,
                 nome=nome,
-                cargaHoraria=cargaHoraria,
-                descricao=descricao
+                dataEvento=dataEvento,
+                homenageado=homenageado
             )
             
-            disciplinaId = self.__disciplinaDao.salvar(disciplina)
-            print(f"\n✅ Disciplina criada com sucesso!")
-            self.exibirDetalhesDisciplina(disciplina)
+            eventoId = self.__eventoDao.salvar(evento)
+            print(f"\n✅ Evento criado com sucesso!")
+            self.exibirDetalhesEvento(evento)
         
         except ValueError as e:
             print(f"❌ Erro de validação: {e}")
         except Exception as e:
-            print(f"❌ Erro ao criar disciplina: {e}")
+            print(f"❌ Erro ao criar evento: {e}")
     
-    def exibirDetalhesDisciplina(self, disciplina: Disciplina):
-        """Exibe os detalhes completos de uma disciplina"""
-        print(f"\n   ID: {disciplina.id}")
-        print(f"   Nome: {disciplina.nome}")
-        if disciplina.cargaHoraria is not None:
-            print(f"   Carga horária: {disciplina.cargaHoraria} horas")
-        if disciplina.descricao:
-            print(f"   Descrição: {disciplina.descricao}")
+    def exibirDetalhesEvento(self, evento: Evento):
+        """Exibe os detalhes completos de um evento"""
+        print(f"\n   ID: {evento.id}")
+        print(f"   Nome: {evento.nome}")
+        if evento.dataEvento is not None:
+            print(f"   Data: {evento.dataEvento} ")
+        if evento.homenageado:
+            print(f"   Homenageado(a): {evento.homenageado}")
     
-    def listarDisciplinas(self):
-        """Lista todas as disciplinas cadastradas"""
-        print("\n--- LISTAR TODAS AS DISCIPLINAS ---")
+    def listarEventos(self):
+        """Lista todos os evento cadastrados"""
+        print("\n--- LISTAR TODOS OS EVENTOS ---")
         
         try:
-            disciplinas = self.__disciplinaDao.listarTodas()
+            eventos = self.__eventoDao.listarTodas()
             
-            if not disciplinas:
-                print("⚠️  Nenhuma disciplina cadastrada.")
+            if not eventos:
+                print("⚠️  Nenhum evento cadastrado.")
                 return
             
-            print(f"\nTotal de disciplinas: {len(disciplinas)}")
+            print(f"\nTotal de eventos: {len(eventos)}")
             print("\n" + "-"*80)
-            print(f"{'ID':<5} | {'Nome':<40} | {'Carga Horária':<15}")
+            print(f"{'ID':<5} | {'Nome':<40} | {'Data':<10}")
             print("-"*80)
             
-            for disciplina in disciplinas:
-                cargaHoraria = f"{disciplina.cargaHoraria}h" if disciplina.cargaHoraria else "N/A"
-                print(f"{disciplina.id:<5} | {disciplina.nome[:39]:<40} | {cargaHoraria:<15}")
+            for evento in eventos:
+                dataEvento = f"{evento.dataEvento}" if evento.dataEvento else "N/A"
+                print(f"{evento.id:<5} | {evento.nome[:39]:<40} | {dataEvento:<15}")
             
             print("-"*80)
         
         except Exception as e:
-            print(f"❌ Erro ao listar disciplinas: {e}")
+            print(f"❌ Erro ao listar eventos: {e}")
     
     def buscarPorId(self):
-        """Solicita um ID e busca a disciplina correspondente"""
-        print("\n--- BUSCAR DISCIPLINA POR ID ---")
+        """Solicita um ID e busca o evento correspondente"""
+        print("\n--- BUSCAR EVENTO POR ID ---")
         
         try:
-            idStr = input("Digite o ID da disciplina: ").strip()
-            disciplinaId = int(idStr)
+            idStr = input("Digite o ID do evento: ").strip()
+            eventoId = int(idStr)
             
-            disciplina = self.__disciplinaDao.buscarPorId(disciplinaId)
+            evento = self.__eventoDao.buscarPorId(eventoId)
             
-            if disciplina:
-                print("\n✅ Disciplina encontrada:")
-                self.exibirDetalhesDisciplina(disciplina)
+            if evento:
+                print("\n✅ Evento encontrada:")
+                self.exibirDetalhesEvento(evento)
             else:
-                print(f"⚠️  Disciplina com ID {disciplinaId} não encontrada.")
+                print(f"⚠️  Evento com ID {eventoId} não encontrado.")
         
         except ValueError:
             print("❌ Erro: ID deve ser um número inteiro!")
         except Exception as e:
-            print(f"❌ Erro ao buscar disciplina: {e}")
+            print(f"❌ Erro ao buscar evento: {e}")
     
     def buscarPorNome(self):
-        """Solicita um nome e busca disciplinas correspondentes"""
-        print("\n--- BUSCAR DISCIPLINA POR NOME ---")
+        """Solicita um nome e busca eventos correspondentes"""
+        print("\n--- BUSCAR EVENTO POR NOME ---")
         
-        nome = input("Digite o nome (ou parte do nome) da disciplina: ").strip()
+        nome = input("Digite o nome (ou parte do nome) do evento: ").strip()
         
         if not nome:
             print("❌ Erro: O nome não pode ser vazio!")
             return
         
         try:
-            disciplinas = self.__disciplinaDao.buscarPorNome(nome)
+            eventos = self.__eventoDao.buscarPorNome(nome)
             
-            if disciplinas:
-                print(f"\n✅ {len(disciplinas)} disciplina(s) encontrada(s):")
+            if eventos:
+                print(f"\n✅ {len(evento)} evento(s) encontrada(s):")
                 print("\n" + "-"*80)
-                for disciplina in disciplinas:
-                    cargaHoraria = f"{disciplina.cargaHoraria}h" if disciplina.cargaHoraria else "N/A"
-                    print(f"ID: {disciplina.id} | {disciplina.nome} | Carga: {cargaHoraria}")
+                for evento in eventos:
+                    dataEvento = f"{evento.dataEvento}h" if evento.dataEvento else "N/A"
+                    print(f"ID: {evento.id} | {evento.nome} | Data: {dataEvento}")
                 print("-"*80)
             else:
-                print(f"⚠️  Nenhuma disciplina encontrada com o nome contendo '{nome}'.")
+                print(f"⚠️  Nenhum evento encontrado com o nome contendo '{nome}'.")
         
         except Exception as e:
-            print(f"❌ Erro ao buscar disciplina: {e}")
+            print(f"❌ Erro ao buscar evento: {e}")
     
-    def atualizarDisciplina(self):
-        """Solicita dados do usuário e atualiza uma disciplina existente"""
-        print("\n--- ATUALIZAR DISCIPLINA ---")
+    def atualizarevento(self):
+        """Solicita dados do usuário e atualiza um evento existente"""
+        print("\n--- ATUALIZAR EVENTO ---")
         
         try:
-            idStr = input("Digite o ID da disciplina a atualizar: ").strip()
-            disciplinaId = int(idStr)
+            idStr = input("Digite o ID do evento a atualizar: ").strip()
+            eventoId = int(idStr)
             
-            disciplina = self.__disciplinaDao.buscarPorId(disciplinaId)
+            evento = self.__eventoDao.buscarPorId(eventoId)
             
-            if not disciplina:
-                print(f"⚠️  Disciplina com ID {disciplinaId} não encontrada.")
+            if not evento:
+                print(f"⚠️  Evento com ID {eventoId} não encontrada.")
                 return
             
-            print(f"\nDisciplina atual:")
-            self.exibirDetalhesDisciplina(disciplina)
+            print(f"\nEvento atual:")
+            self.exibirDetalhesEvento(evento)
             
             print("\nDigite os novos dados (ou Enter para manter o valor atual):")
             
             # Nome
-            novoNome = input(f"Nome [{disciplina.nome}]: ").strip()
+            novoNome = input(f"Nome [{evento.nome}]: ").strip()
             if novoNome:
-                # Verificar se já existe outra disciplina com esse nome
-                disciplinasExistentes = self.__disciplinaDao.buscarPorNome(novoNome)
-                for d in disciplinasExistentes:
-                    if d.id != disciplinaId and d.nome.lower() == novoNome.lower():
-                        print(f"❌ Erro: Já existe outra disciplina com o nome '{novoNome}' (ID: {d.id})")
+                # Verificar se já existe outro evento com esse nome
+                eventosExistentes = self.__eventoDao.buscarPorNome(novoNome)
+                for e in eventosExistentes:
+                    if e.id != eventoId and e.nome.lower() == novoNome.lower():
+                        print(f"❌ Erro: Já existe outro evento com o nome '{novoNome}' (ID: {e.id})")
                         return
-                disciplina.nome = novoNome
+                evento.nome = novoNome
             
-            # Carga horária
-            cargaStr = input(f"Carga horária [{disciplina.cargaHoraria or 'N/A'}] (ou Enter para manter): ").strip()
+            # Data
+            cargaStr = input(f"Data [{evento.dataEvento or 'N/A'}] (ou Enter para manter): ").strip()
             if cargaStr:
-                disciplina.cargaHoraria = int(cargaStr) if cargaStr else None
+                evento.dataEvento = int(cargaStr) if cargaStr else None
             
-            # Descrição
-            descStr = input(f"Descrição [{disciplina.descricao or 'N/A'}] (ou Enter para manter): ").strip()
+            # Homenageado
+            descStr = input(f"Descrição [{evento.homenageado or 'N/A'}] (ou Enter para manter): ").strip()
             if descStr:
-                disciplina.descricao = descStr if descStr else None
+                evento.homenageado = descStr if descStr else None
             
-            self.__disciplinaDao.salvar(disciplina)
-            print(f"\n✅ Disciplina atualizada com sucesso!")
+            self.__eventoDao.salvar(evento)
+            print(f"\n✅ Evento atualizado com sucesso!")
             print("\nDados atualizados:")
-            self.exibirDetalhesDisciplina(disciplina)
+            self.exibirDetalhesEvento(evento)
         
         except ValueError as e:
             print(f"❌ Erro: {e}")
         except Exception as e:
-            print(f"❌ Erro ao atualizar disciplina: {e}")
+            print(f"❌ Erro ao atualizar evento: {e}")
     
-    def deletarDisciplina(self):
-        """Solicita um ID e deleta a disciplina correspondente"""
-        print("\n--- DELETAR DISCIPLINA ---")
+    def deletarEvento(self):
+        """Solicita um ID e deleta o evento correspondente"""
+        print("\n--- DELETAR EVENTO ---")
         
         try:
-            idStr = input("Digite o ID da disciplina a deletar: ").strip()
-            disciplinaId = int(idStr)
+            idStr = input("Digite o ID do evento a deletar: ").strip()
+            eventoId = int(idStr)
             
-            disciplina = self.__disciplinaDao.buscarPorId(disciplinaId)
+            evento = self.__eventoDao.buscarPorId(eventoId)
             
-            if not disciplina:
-                print(f"⚠️  Disciplina com ID {disciplinaId} não encontrada.")
+            if not evento:
+                print(f"⚠️  Evento com ID {eventoId} não encontrado.")
                 return
             
-            print(f"\nDisciplina a ser deletada:")
-            self.exibirDetalhesDisciplina(disciplina)
+            print(f"\nEvento a ser deletada:")
+            self.exibirDetalhesEvento(evento)
             
-            confirmacao = input("\n⚠️  Tem certeza que deseja deletar esta disciplina? (s/N): ").strip().lower()
+            confirmacao = input("\n⚠️  Tem certeza que deseja deletar este evento? (s/N): ").strip().lower()
             
             if confirmacao != 's':
                 print("❌ Operação cancelada.")
                 return
             
-            sucesso = self.__disciplinaDao.deletar(disciplina)
+            sucesso = self.__eventoDao.deletar(evento)
             
             if sucesso:
-                print(f"\n✅ Disciplina deletada com sucesso!")
+                print(f"\n✅ Evento deletada com sucesso!")
             else:
-                print(f"\n❌ Erro ao deletar disciplina.")
+                print(f"\n❌ Erro ao deletar evento.")
         
         except ValueError:
             print("❌ Erro: ID deve ser um número inteiro!")
         except Exception as e:
-            print(f"❌ Erro ao deletar disciplina: {e}")
+            print(f"❌ Erro ao deletar evento: {e}")
     
-    def vincularPessoa(self):
-        """Vincula uma pessoa a uma disciplina"""
-        print("\n--- VINCULAR PESSOA A DISCIPLINA ---")
+    def vincularAvaliacao(self):
+        """Vincula uma avaliacao a um evento"""
+        print("\n--- VINCULAR AVALIACAO A EVENTO ---")
         
         try:
-            # Selecionar disciplina
-            disciplinas = self.__disciplinaDao.listarTodas()
-            if not disciplinas:
-                print("⚠️  Nenhuma disciplina cadastrada.")
+            # Selecionar evento
+            eventos = self.__eventoDao.listarTodas()
+            if not eventos:
+                print("⚠️  Nenhum evento cadastrada.")
                 return
             
-            print("\nDisciplinas disponíveis:")
-            for d in disciplinas:
-                print(f"  {d.id}. {d.nome}")
+            print("\nEventos disponíveis:")
+            for e in eventos:
+                print(f"  {e.id}. {e.nome}")
             
-            disciplinaIdStr = input("\nDigite o ID da disciplina: ").strip()
-            disciplinaId = int(disciplinaIdStr)
-            disciplina = self.__disciplinaDao.buscarPorId(disciplinaId)
+            eventoIdStr = input("\nDigite o ID do evento: ").strip()
+            eventoId = int(eventoIdStr)
+            evento = self.__eventoDao.buscarPorId(eventoId)
             
-            if not disciplina:
-                print(f"❌ Erro: Disciplina com ID {disciplinaId} não encontrada!")
+            if not evento:
+                print(f"❌ Erro: Evento com ID {eventoId} não encontrado!")
                 return
             
-            # Selecionar pessoa
-            pessoas = self.__pessoaDao.listarTodas()
-            if not pessoas:
-                print("⚠️  Nenhuma pessoa cadastrada.")
+            # Selecionar avaliacao
+            avaliacoes = self.__avaliacaoDao.listarTodas()
+            if not avaliacoes:
+                print("⚠️  Nenhuma avaliação cadastrada.")
                 return
             
-            print("\nPessoas disponíveis:")
-            for p in pessoas:
-                print(f"  {p.id}. {p.nome} - {p.email}")
+            print("\nAvaliações disponíveis:")
+            for a in avaliacoes:
+                print(f"  {a.id}. {a.data} - {a.aluno} - {a.examinador} - {a.evento}")
             
-            pessoaIdStr = input("\nDigite o ID da pessoa: ").strip()
-            pessoaId = int(pessoaIdStr)
-            pessoa = self.__pessoaDao.buscarPorId(pessoaId)
+            avaliacaoIdStr = input("\nDigite o ID da avaliação: ").strip()
+            avaliacaoId = int(avaliacaoIdStr)
+            avaliacao = self.__avaliacaoDao.buscarPorId(avaliacaoId)
             
-            if not pessoa:
-                print(f"❌ Erro: Pessoa com ID {pessoaId} não encontrada!")
+            if not avaliacao:
+                print(f"❌ Erro: Avaliação com ID {avaliacaoId} não encontrada!")
                 return
             
             # Verificar se já está vinculado
-            disciplinasPessoa = self.__disciplinaDao.buscarDisciplinasPorPessoa(pessoaId)
-            if disciplina in disciplinasPessoa:
-                print(f"❌ Erro: A pessoa '{pessoa.nome}' já está vinculada à disciplina '{disciplina.nome}'!")
+            eventosAvaliacao = self.__eventoDao.buscarEventosPorAvaliacao(avaliacaoId)
+            if evento in eventosAvaliacao:
+                print(f"❌ Erro: A avaliacao '{avaliacao.id}' já está vinculada ao evento '{evento.nome}'!")
                 return
             
-            sucesso = self.__disciplinaDao.vincularPessoa(pessoa, disciplina)
+            sucesso = self.__eventoDao.vincularAvaliacao(avaliacao, evento)
             
             if sucesso:
-                print(f"\n✅ Pessoa '{pessoa.nome}' vinculada à disciplina '{disciplina.nome}' com sucesso!")
+                print(f"\n✅ Avaliação '{avaliacao.id}' vinculada ao evento '{evento.nome}' com sucesso!")
             else:
-                print(f"\n❌ Erro: A pessoa já está vinculada a esta disciplina.")
+                print(f"\n❌ Erro: A avaliação já está vinculada a este evento.")
         
         except ValueError:
             print("❌ Erro: ID deve ser um número inteiro!")
         except Exception as e:
-            print(f"❌ Erro ao vincular pessoa: {e}")
+            print(f"❌ Erro ao vincular avaliação: {e}")
     
-    def desvincularPessoa(self):
-        """Remove o vínculo entre uma pessoa e uma disciplina"""
-        print("\n--- DESVINCULAR PESSOA DE DISCIPLINA ---")
+    def desvincularAvaliacao(self):
+        """Remove o vínculo entre uma avaliação e um evento"""
+        print("\n--- DESVINCULAR AVALIAÇÃO DE EVENTO ---")
         
         try:
-            # Selecionar disciplina
-            disciplinas = self.__disciplinaDao.listarTodas()
-            if not disciplinas:
-                print("⚠️  Nenhuma disciplina cadastrada.")
+            # Selecionar evento
+            eventos = self.__eventoDao.listarTodas()
+            if not eventos:
+                print("⚠️  Nenhum evento cadastrada.")
                 return
             
-            print("\nDisciplinas disponíveis:")
-            for d in disciplinas:
-                print(f"  {d.id}. {d.nome}")
+            print("\nEventos disponíveis:")
+            for e in eventos:
+                print(f"  {e.id}. {e.nome}")
             
-            disciplinaIdStr = input("\nDigite o ID da disciplina: ").strip()
-            disciplinaId = int(disciplinaIdStr)
-            disciplina = self.__disciplinaDao.buscarPorId(disciplinaId)
+            eventoIdStr = input("\nDigite o ID do evento: ").strip()
+            eventoId = int(eventoIdStr)
+            evento = self.__eventoDao.buscarPorId(eventoId)
             
-            if not disciplina:
-                print(f"❌ Erro: Disciplina com ID {disciplinaId} não encontrada!")
+            if not evento:
+                print(f"❌ Erro: Evento com ID {eventoId} não encontrada!")
                 return
             
-            # Listar pessoas vinculadas
-            pessoasVinculadas = self.__disciplinaDao.buscarPessoasPorDisciplina(disciplinaId)
-            if not pessoasVinculadas:
-                print(f"⚠️  Nenhuma pessoa vinculada à disciplina '{disciplina.nome}'.")
+            # Listar avaliacoes vinculadas
+            avaliacoesVinculadas = self.__eventoDao.buscarAvaliacoesPorEvento(eventoId)
+            if not avaliacoesVinculadas:
+                print(f"⚠️  Nenhuma avaliação vinculada ao evento '{evento.nome}'.")
                 return
             
-            print(f"\nPessoas vinculadas à disciplina '{disciplina.nome}':")
-            for p in pessoasVinculadas:
-                print(f"  {p.id}. {p.nome} - {p.email}")
+            print(f"\nAvaliações vinculadas ao evento '{evento.nome}':")
+            for a in avaliacoesVinculadas:
+                print(f"  {a.id}. {a.data} - {a.aluno} - {a.examinador} - {a.evento}")
             
-            pessoaIdStr = input("\nDigite o ID da pessoa a desvincular: ").strip()
-            pessoaId = int(pessoaIdStr)
-            pessoa = self.__pessoaDao.buscarPorId(pessoaId)
+            avaliacaoIdStr = input("\nDigite o ID da avaliação a desvincular: ").strip()
+            avaliacaoId = int(avaliacaoIdStr)
+            avaliacao = self.__avaliacaoDao.buscarPorId(avaliacaoId)
             
-            if not pessoa:
-                print(f"❌ Erro: Pessoa com ID {pessoaId} não encontrada!")
+            if not avaliacao:
+                print(f"❌ Erro: Avaliação com ID {avaliacaoId} não encontrada!")
                 return
             
-            sucesso = self.__disciplinaDao.desvincularPessoa(pessoa, disciplina)
+            sucesso = self.__avaliacaoaDao.desvincularAvaliacao(avaliacao, evento)
             
             if sucesso:
-                print(f"\n✅ Pessoa '{pessoa.nome}' desvinculada da disciplina '{disciplina.nome}' com sucesso!")
+                print(f"\n✅ Avaliação '{avaliacao.nome}' desvinculada do evento '{evento.nome}' com sucesso!")
             else:
-                print(f"\n❌ Erro: A pessoa não está vinculada a esta disciplina.")
+                print(f"\n❌ Erro: A avaliação não está vinculada a este evento.")
         
         except ValueError:
             print("❌ Erro: ID deve ser um número inteiro!")
         except Exception as e:
-            print(f"❌ Erro ao desvincular pessoa: {e}")
+            print(f"❌ Erro ao desvincular avaliação: {e}")
     
-    def listarPessoasDisciplina(self):
-        """Lista todas as pessoas vinculadas a uma disciplina"""
-        print("\n--- LISTAR PESSOAS DE UMA DISCIPLINA ---")
+    def listarAvaliacoesEvento(self):
+        """Lista todas as avaliações vinculadas a um evento"""
+        print("\n--- LISTAR AVALIAÇÕES DE UM EVENTO ---")
         
         try:
-            disciplinas = self.__disciplinaDao.listarTodas()
-            if not disciplinas:
-                print("⚠️  Nenhuma disciplina cadastrada.")
+            eventos = self.__eventoDao.listarTodas()
+            if not eventos:
+                print("⚠️  Nenhum evento cadastrado.")
                 return
             
-            print("\nDisciplinas disponíveis:")
-            for d in disciplinas:
-                print(f"  {d.id}. {d.nome}")
+            print("\nEventos disponíveis:")
+            for e in eventos:
+                print(f"  {e.id}. {e.nome}")
             
-            disciplinaIdStr = input("\nDigite o ID da disciplina: ").strip()
-            disciplinaId = int(disciplinaIdStr)
-            disciplina = self.__disciplinaDao.buscarPorId(disciplinaId)
+            eventoIdStr = input("\nDigite o ID do evento: ").strip()
+            eventoId = int(eventoIdStr)
+            evento = self.__eventoDao.buscarPorId(eventoId)
             
-            if not disciplina:
-                print(f"❌ Erro: Disciplina com ID {disciplinaId} não encontrada!")
+            if not evento:
+                print(f"❌ Erro: Evento com ID {eventoId} não encontrada!")
                 return
             
-            pessoas = self.__disciplinaDao.buscarPessoasPorDisciplina(disciplinaId)
+            avaliacoes = self.__eventoDao.buscarAvaliacoesPorEvento(eventoId)
             
-            if pessoas:
-                print(f"\n✅ {len(pessoas)} pessoa(s) vinculada(s) à disciplina '{disciplina.nome}':")
+            if avaliacoes:
+                print(f"\n✅ {len(avaliacoes)} avaliação(s) vinculada(s) ao evento '{evento.nome}':")
                 print("\n" + "-"*80)
-                for pessoa in pessoas:
-                    print(f"ID: {pessoa.id} | {pessoa.nome} | {pessoa.email}")
+                for avaliacao in avaliacoes:
+                    print(f"ID: {avaliacao.id} | {avaliacao.data} | {avaliacao.aluno} | {avaliacao.examinador} {avaliacao.nivel}")
                 print("-"*80)
             else:
-                print(f"⚠️  Nenhuma pessoa vinculada à disciplina '{disciplina.nome}'.")
+                print(f"⚠️  Nenhuma avaliação vinculada à e '{evento.nome}'.")
         
         except ValueError:
             print("❌ Erro: ID deve ser um número inteiro!")
         except Exception as e:
-            print(f"❌ Erro ao listar pessoas: {e}")
-    
-    def listarDisciplinasPessoa(self):
-        """Lista todas as disciplinas vinculadas a uma pessoa"""
-        print("\n--- LISTAR DISCIPLINAS DE UMA PESSOA ---")
-        
-        try:
-            pessoas = self.__pessoaDao.listarTodas()
-            if not pessoas:
-                print("⚠️  Nenhuma pessoa cadastrada.")
-                return
-            
-            print("\nPessoas disponíveis:")
-            for p in pessoas:
-                print(f"  {p.id}. {p.nome} - {p.email}")
-            
-            pessoaIdStr = input("\nDigite o ID da pessoa: ").strip()
-            pessoaId = int(pessoaIdStr)
-            pessoa = self.__pessoaDao.buscarPorId(pessoaId)
-            
-            if not pessoa:
-                print(f"❌ Erro: Pessoa com ID {pessoaId} não encontrada!")
-                return
-            
-            disciplinas = self.__disciplinaDao.buscarDisciplinasPorPessoa(pessoaId)
-            
-            if disciplinas:
-                print(f"\n✅ {len(disciplinas)} disciplina(s) vinculada(s) à pessoa '{pessoa.nome}':")
-                print("\n" + "-"*80)
-                for disciplina in disciplinas:
-                    cargaHoraria = f"{disciplina.cargaHoraria}h" if disciplina.cargaHoraria else "N/A"
-                    print(f"ID: {disciplina.id} | {disciplina.nome} | Carga: {cargaHoraria}")
-                print("-"*80)
-            else:
-                print(f"⚠️  Nenhuma disciplina vinculada à pessoa '{pessoa.nome}'.")
-        
-        except ValueError:
-            print("❌ Erro: ID deve ser um número inteiro!")
-        except Exception as e:
-            print(f"❌ Erro ao listar disciplinas: {e}")
+            print(f"❌ Erro ao listar avaliações: {e}")
     
     def executar(self):
         """Método principal que executa o loop do menu"""
@@ -444,25 +404,23 @@ class DisciplinaService:
                     print("\n👋 Encerrando o sistema...")
                     break
                 elif opcao == '1':
-                    self.criarDisciplina()
+                    self.criarEvento()
                 elif opcao == '2':
-                    self.listarDisciplinas()
+                    self.listarEventos()
                 elif opcao == '3':
                     self.buscarPorId()
                 elif opcao == '4':
                     self.buscarPorNome()
                 elif opcao == '5':
-                    self.atualizarDisciplina()
+                    self.atualizarEvento()
                 elif opcao == '6':
-                    self.deletarDisciplina()
+                    self.deletarEvento()
                 elif opcao == '7':
-                    self.vincularPessoa()
+                    self.vincularAvaliacao()
                 elif opcao == '8':
-                    self.desvincularPessoa()
+                    self.desvincularAvaliacao()
                 elif opcao == '9':
-                    self.listarPessoasDisciplina()
-                elif opcao == '10':
-                    self.listarDisciplinasPessoa()
+                    self.listarAvaliacoesEvento()
                 else:
                     print("❌ Opção inválida! Tente novamente.")
                 
@@ -488,7 +446,7 @@ def main():
         db.criarTabelas()
         
         # Criar e executar o serviço
-        service = DisciplinaService(db)
+        service = EventoService(db)
         service.executar()
     
     except Exception as e:
