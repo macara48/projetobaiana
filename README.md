@@ -9,7 +9,7 @@
 - Iandra Santos Lacerda
 - Maria Clara dos Santos Pires
 - Tarcísio Côrtes Viana
-- Yuri Lima
+- Yuri Lima Neres
 
 **Orientador:** Prof. Cláudio Rodolfo Sousa de Oliveira
 
